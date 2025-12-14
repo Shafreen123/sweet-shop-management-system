@@ -19,6 +19,8 @@ const AddSweetModal: React.FC<AddSweetModalProps> = ({ isOpen, onClose, onSweetA
       setName('');
       setPrice(0);
       setQuantity(1);
+    } else {
+      setRestockQuantity(1);
     }
   }, [sweetId, isOpen]);
 
@@ -57,15 +59,26 @@ const AddSweetModal: React.FC<AddSweetModalProps> = ({ isOpen, onClose, onSweetA
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.6)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
       }}
     >
-      <div style={{ background: 'white', padding: 20, borderRadius: 8, width: 400 }}>
-        {sweetId ? <h3>Restock Sweet</h3> : <h3>Add New Sweet</h3>}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #667eea, #764ba2)',
+          padding: 30,
+          borderRadius: 12,
+          width: 400,
+          color: '#fff',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+        }}
+      >
+        <h3 style={{ textAlign: 'center', marginBottom: 20 }}>
+          {sweetId ? 'Restock Sweet' : 'Add New Sweet'}
+        </h3>
 
         {!sweetId && (
           <>
@@ -73,21 +86,42 @@ const AddSweetModal: React.FC<AddSweetModalProps> = ({ isOpen, onClose, onSweetA
               placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              style={{ width: '100%', marginBottom: 10 }}
+              style={{
+                width: '100%',
+                marginBottom: 15,
+                padding: 10,
+                borderRadius: 8,
+                border: 'none',
+                fontSize: 16,
+              }}
             />
             <input
               type="number"
               placeholder="Price"
               value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
-              style={{ width: '100%', marginBottom: 10 }}
+              style={{
+                width: '100%',
+                marginBottom: 15,
+                padding: 10,
+                borderRadius: 8,
+                border: 'none',
+                fontSize: 16,
+              }}
             />
             <input
               type="number"
               placeholder="Quantity"
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
-              style={{ width: '100%', marginBottom: 10 }}
+              style={{
+                width: '100%',
+                marginBottom: 15,
+                padding: 10,
+                borderRadius: 8,
+                border: 'none',
+                fontSize: 16,
+              }}
             />
           </>
         )}
@@ -98,14 +132,55 @@ const AddSweetModal: React.FC<AddSweetModalProps> = ({ isOpen, onClose, onSweetA
             placeholder="Quantity to restock"
             value={restockQuantity}
             onChange={(e) => setRestockQuantity(Number(e.target.value))}
-            style={{ width: '100%', marginBottom: 10 }}
+            style={{
+              width: '100%',
+              marginBottom: 15,
+              padding: 10,
+              borderRadius: 8,
+              border: 'none',
+              fontSize: 16,
+            }}
           />
         )}
 
-        <button onClick={handleAddSweet} style={{ marginRight: 10 }}>
-          {sweetId ? 'Restock' : 'Add'}
-        </button>
-        <button onClick={onClose}>Cancel</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+          <button
+            onClick={handleAddSweet}
+            style={{
+              flex: 1,
+              padding: 10,
+              border: 'none',
+              borderRadius: 8,
+              background: 'linear-gradient(135deg, #ff6b6b, #fcb69f)',
+              color: '#fff',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            {sweetId ? 'Restock' : 'Add'}
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: 10,
+              border: 'none',
+              borderRadius: 8,
+              background: '#aaa',
+              color: '#fff',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
