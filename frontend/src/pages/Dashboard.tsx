@@ -1,9 +1,11 @@
 import { useEffect, useState, useContext } from 'react';
 import api from '../api/api';
+import SweetSearch from '../components/SweetSearch';
+import AddSweetForm from '../components/AddSweetForm';
 import { AuthContext } from '../context/AuthContext';
 
 interface Sweet {
-  _id: string;
+  id: number;
   name: string;
   price: number;
   quantity: number;
@@ -14,11 +16,12 @@ const Dashboard = () => {
   const [sweets, setSweets] = useState<Sweet[]>([]);
   const [error, setError] = useState('');
 
+  // Fetch all sweets
   const fetchSweets = async () => {
     try {
       const res = await api.get('/sweets');
       setSweets(res.data);
-    } catch (err) {
+    } catch {
       setError('Failed to load sweets');
     }
   };
@@ -27,21 +30,33 @@ const Dashboard = () => {
     fetchSweets();
   }, []);
 
-  const purchaseSweet = async (id: string) => {
+  // Search & filter sweets
+  const searchSweets = async (params: any) => {
     try {
-      await api.post(`/sweets/purchase/${id}`);
+      const res = await api.get('/sweets/search', { params });
+      setSweets(res.data);
+    } catch {
+      alert('Search failed');
+    }
+  };
+
+  // Purchase sweet
+  const purchaseSweet = async (id: number) => {
+    try {
+      await api.post(`/sweets/${id}/purchase`, { quantity: 1 });
       fetchSweets();
-    } catch (err) {
+    } catch {
       alert('Purchase failed');
     }
   };
 
-  const deleteSweet = async (id: string) => {
+  // Delete sweet (admin only)
+  const deleteSweet = async (id: number) => {
     if (!window.confirm('Delete this sweet?')) return;
     try {
       await api.delete(`/sweets/${id}`);
       fetchSweets();
-    } catch (err) {
+    } catch {
       alert('Delete failed');
     }
   };
@@ -50,8 +65,17 @@ const Dashboard = () => {
     <div style={{ padding: 20 }}>
       <h2>Sweet Shop Dashboard 🍬</h2>
 
+      {/* Search & Filter */}
+      <SweetSearch onSearch={searchSweets} />
+
+      {/* Admin: Add Sweet */}
+      {user?.role === 'admin' && (
+        <AddSweetForm onSweetAdded={fetchSweets} />
+      )}
+
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
+      {/* Sweets Table */}
       <table width="100%" border={1} cellPadding={10}>
         <thead>
           <tr>
@@ -63,22 +87,23 @@ const Dashboard = () => {
         </thead>
 
         <tbody>
-          {sweets.map(sweet => (
-            <tr key={sweet._id}>
+          {sweets.map((sweet) => (
+            <tr key={sweet.id}>
               <td>{sweet.name}</td>
               <td>{sweet.price}</td>
               <td>{sweet.quantity}</td>
               <td>
-                {sweet.quantity > 0 && (
-                  <button onClick={() => purchaseSweet(sweet._id)}>
-                    Purchase
-                  </button>
-                )}
+                <button
+                  onClick={() => purchaseSweet(sweet.id)}
+                  disabled={sweet.quantity === 0}
+                >
+                  Purchase
+                </button>
 
                 {user?.role === 'admin' && (
                   <button
                     style={{ marginLeft: 10, color: 'red' }}
-                    onClick={() => deleteSweet(sweet._id)}
+                    onClick={() => deleteSweet(sweet.id)}
                   >
                     Delete
                   </button>
