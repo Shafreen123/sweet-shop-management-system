@@ -1,47 +1,39 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import { AuthProvider, AuthContext } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Shop from './pages/Shop';
-import Admin from './pages/Admin';
+import Dashboard from './pages/Dashboard';
+import AdminPanel from './pages/AdminPanel';
+import { useContext } from 'react';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  return user ? <>{children}</> : <Navigate to="/login" />;
+const PrivateRoute = ({ children, adminOnly = false }: any) => {
+  const { user } = useContext(AuthContext);
+  if (!user) return <Navigate to="/login" />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/" />;
+  return children;
 };
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Shop />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/admin" element={
+            <PrivateRoute adminOnly>
+              <AdminPanel />
+            </PrivateRoute>
+          } />
+        </Routes>
       </Router>
     </AuthProvider>
   );
 }
 
 export default App;
-
