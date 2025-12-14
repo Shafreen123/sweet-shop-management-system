@@ -21,8 +21,8 @@ const Dashboard = () => {
     try {
       const res = await api.get('/sweets');
       setSweets(res.data);
-    } catch {
-      setError('Failed to load sweets');
+    } catch (err: any) {
+      setError(err.message || 'Failed to load sweets');
     }
   };
 
@@ -35,8 +35,8 @@ const Dashboard = () => {
     try {
       const res = await api.get('/sweets/search', { params });
       setSweets(res.data);
-    } catch {
-      alert('Search failed');
+    } catch (err: any) {
+      alert(err.message || 'Search failed');
     }
   };
 
@@ -45,8 +45,8 @@ const Dashboard = () => {
     try {
       await api.post(`/sweets/${id}/purchase`, { quantity: 1 });
       fetchSweets();
-    } catch {
-      alert('Purchase failed');
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Purchase failed');
     }
   };
 
@@ -56,8 +56,21 @@ const Dashboard = () => {
     try {
       await api.delete(`/sweets/${id}`);
       fetchSweets();
-    } catch {
-      alert('Delete failed');
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Delete failed');
+    }
+  };
+
+  // Restock sweet (admin only)
+  const restockSweet = async (id: number) => {
+    const qty = parseInt(prompt('Enter quantity to restock:', '1') || '0');
+    if (qty <= 0) return;
+
+    try {
+      await api.post(`/sweets/${id}/restock`, { quantity: qty });
+      fetchSweets();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Restock failed');
     }
   };
 
@@ -69,9 +82,7 @@ const Dashboard = () => {
       <SweetSearch onSearch={searchSweets} />
 
       {/* Admin: Add Sweet */}
-      {user?.role === 'admin' && (
-        <AddSweetForm onSweetAdded={fetchSweets} />
-      )}
+      {user?.role === 'admin' && <AddSweetForm onSweetAdded={fetchSweets} />}
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
@@ -101,12 +112,20 @@ const Dashboard = () => {
                 </button>
 
                 {user?.role === 'admin' && (
-                  <button
-                    style={{ marginLeft: 10, color: 'red' }}
-                    onClick={() => deleteSweet(sweet.id)}
-                  >
-                    Delete
-                  </button>
+                  <>
+                    <button
+                      style={{ marginLeft: 10, color: 'red' }}
+                      onClick={() => deleteSweet(sweet.id)}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      style={{ marginLeft: 10, color: 'green' }}
+                      onClick={() => restockSweet(sweet.id)}
+                    >
+                      Restock
+                    </button>
+                  </>
                 )}
               </td>
             </tr>
